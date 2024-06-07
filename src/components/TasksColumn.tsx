@@ -1,8 +1,13 @@
 import { BiDotsHorizontalRounded } from "react-icons/bi";
 import { LuPlus } from "react-icons/lu";
 import TaskCard from "./TaskCard";
+import { useState } from "react";
+import TaskForm from "./TaskForm";
 
 const TasksColumn = ({ status, statusColor, tasks }: TasksColumn) => {
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
   return (
     <div className="w-full">
       {/* For the status and new task add option */}
@@ -20,7 +25,7 @@ const TasksColumn = ({ status, statusColor, tasks }: TasksColumn) => {
         {/* For adding new task */}
         <div className="flex items-center gap-x-2">
           <BiDotsHorizontalRounded className="cursor-pointer text-gray-500" />
-          <LuPlus className="cursor-pointer text-gray-500" />
+          <LuPlus onClick={() => setIsModalOpen(true)} className="cursor-pointer text-gray-500" />
         </div>
       </div>
 
@@ -33,6 +38,10 @@ const TasksColumn = ({ status, statusColor, tasks }: TasksColumn) => {
           ))
         }
       </div>
+
+      {
+        (isModalOpen && status !== 'Solved') && <TaskForm isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} status={status} />
+      }
     </div>
   );
 };
