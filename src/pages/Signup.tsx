@@ -1,8 +1,14 @@
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
-  return (
-    <div>Signup</div>
-  )
-}
+  const navigate = useNavigate();
 
-export default Signup
+  return (
+    <>
+      <div>Signup</div>
+      <button onClick={() => navigate("/kanban-board")}>Board</button>
+    </>
+  );
+};
+
+export default Signup;
