@@ -20,7 +20,7 @@ const KanbanBoard = () => {
       </div>
 
       {/* For all the options */}
-      <div className="flex justify-between">
+      <div className="flex justify-between mb-10">
         <div className="flex gap-x-5">
           {/* For Search box */}
           <div className="flex items-center">
@@ -94,8 +94,43 @@ const KanbanBoard = () => {
         </div>
       </div>
 
-      <div>
-        <TasksColumn status="Draft" statusColor="#b3b1b1" tasks={[{ name: "task", severity: 'Medium', dateAndTime: new Date() }]} />
+      <div className="flex justify-between">
+        <div className="flex-grow">
+          <TasksColumn
+            status="Draft"
+            statusColor="#9fa19f"
+            tasks={[
+              { id:1, name: "taskjdnfjdjvdfjvbdfjvbvjsbvjbfjhdbjdfsvbdjhdjhbhjdfjhvbdvjhbdvhj jfhuhduvsdjdbjvd ufhsyufsu", severity: "Medium", dateAndTime: new Date() },
+            ]}
+          />
+        </div>
+        <div className="flex-grow">
+          <TasksColumn
+            status="Unsolved"
+            statusColor="#4287f5"
+            tasks={[
+              { id:1, name: "task", severity: "Low", dateAndTime: new Date() },
+            ]}
+          />
+        </div>
+        <div className="flex-grow">
+          <TasksColumn
+            status="Under Review"
+            statusColor="#f5bc11"
+            tasks={[
+              { id:1, name: "task", severity: "High", dateAndTime: new Date() },
+            ]}
+          />
+        </div>
+        <div className="flex-grow">
+          <TasksColumn
+            status="Solved"
+            statusColor="#1dbf0b"
+            tasks={[
+              { id:1, name: "task", severity: "Critical", dateAndTime: new Date() },
+            ]}
+          />
+        </div>
       </div>
     </div>
   );

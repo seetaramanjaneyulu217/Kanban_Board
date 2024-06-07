@@ -1,10 +1,11 @@
 interface TasksColumn {
     status: string;
     statusColor: string;
-    tasks: Tasks[];
+    tasks: Task[];
 }
 
-interface Tasks {
+interface Task {
+    id: number;
     name: string;
     severity: string;
     labels?: string[];
