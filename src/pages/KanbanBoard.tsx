@@ -11,8 +11,16 @@ import assignedItems from "../constants/assignedItems";
 import statusItems from "../constants/statusItems";
 import severityItems from "../constants/severityItems";
 import TasksColumn from "../components/TasksColumn";
+import { useSelector } from "react-redux";
 
 const KanbanBoard = () => {
+
+  const tasks = useSelector((state: any) => state.tasks.tasks)
+  const draftTasks = tasks.filter((task: Task) => task.status === 'Draft')
+  const unsolvedTasks = tasks.filter((task: Task) => task.status === 'Unsolved')
+  const underReviewTasks = tasks.filter((task: Task) => task.status === 'Under Review')
+  const solvedTasks = tasks.filter((task: Task) => task.status === 'Solved')
+
   return (
     <div className="p-10">
       <div className="mb-10">
@@ -99,36 +107,28 @@ const KanbanBoard = () => {
           <TasksColumn
             status="Draft"
             statusColor="#9fa19f"
-            tasks={[
-              { id:1, name: "taskjdnfjdjvdfjvbdfjvbvjsbvjbfjhdbjdfsvbdjhdjhbhjdfjhvbdvjhbdvhj jfhuhduvsdjdbjvd ufhsyufsu", severity: "Medium", dateAndTime: new Date() },
-            ]}
+            tasks={draftTasks}
           />
         </div>
         <div className="flex-grow">
           <TasksColumn
             status="Unsolved"
             statusColor="#4287f5"
-            tasks={[
-              { id:1, name: "task", severity: "Low", dateAndTime: new Date() },
-            ]}
+            tasks={unsolvedTasks}
           />
         </div>
         <div className="flex-grow">
           <TasksColumn
             status="Under Review"
             statusColor="#f5bc11"
-            tasks={[
-              { id:1, name: "task", severity: "High", dateAndTime: new Date() },
-            ]}
+            tasks={underReviewTasks}
           />
         </div>
         <div className="flex-grow">
           <TasksColumn
             status="Solved"
             statusColor="#1dbf0b"
-            tasks={[
-              { id:1, name: "task", severity: "Critical", dateAndTime: new Date() },
-            ]}
+            tasks={solvedTasks}
           />
         </div>
       </div>

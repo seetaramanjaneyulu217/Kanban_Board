@@ -6,8 +6,10 @@ interface TasksColumn {
 
 interface Task {
     id: number;
+    status: string;
     name: string;
     severity: string;
+    severityValue: number;
     labels?: string[];
     dateAndTime: Date
 }

@@ -5,11 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 
 function App() {
-
-  useEffect(() => {
-    window.localStorage.setItem("tasks", JSON.stringify([]))
-  }, [])
-
+  
   return (
     <>
       <div>
