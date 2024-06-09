@@ -1,13 +1,15 @@
-import { Dropdown } from "antd";
+import { Dropdown, Modal } from "antd";
 import type { MenuProps } from "antd";
 import { PiDotsThreeVertical } from "react-icons/pi";
 import { CiEdit } from "react-icons/ci";
 import { AiOutlineDelete } from "react-icons/ai";
+import { MdLabelOutline } from "react-icons/md";
 import { useState } from "react";
 import TaskForm from "./TaskForm";
-import { deleteTask } from "../store/Slices/TasksSlice";
+import { createLabelsForTask, deleteTask } from "../store/Slices/TasksSlice";
 import { useDispatch } from "react-redux";
 import { useDrag } from "react-dnd";
+import { createLabel } from "../store/Slices/labelsSlice";
 
 interface TaskCardProps {
   task: Task;
@@ -24,18 +26,25 @@ const TaskCard = ({ task }: TaskCardProps) => {
 
   const items: MenuProps["items"] = [
     {
-      key: "1",
+      key: '1',
+      label: <p onClick={() => setIsLabelFormOpen(true)} className="text-base">Add Label</p>,
+      icon: <MdLabelOutline className="text-blue-400" size={20}/>
+    },
+    {
+      key: "2",
       label: <p onClick={() => setIsModalOpen(true)} className="text-base">Edit</p>,
       icon: <CiEdit className="text-blue-400" size={20} />,
     },
     {
-      key: "2",
+      key: "3",
       label: <p onClick={() => dispatch(deleteTask({ id: task.id }))} className="text-base">Delete</p>,
       icon: <AiOutlineDelete className="text-red-400" size={20} />,
-    },
+    }
   ];
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isLabelFormOpen, setIsLabelFormOpen] = useState<boolean>(false)
+  const [label, setLabel] = useState<string>('')
 
   const severityColor =
     task.severity === "Low"
@@ -93,6 +102,28 @@ const TaskCard = ({ task }: TaskCardProps) => {
 
       {/* For editing the form */}
       { isModalOpen && <TaskForm task={task} formType="Edit" isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} status={task.status} />}
+
+      {/* To open adding labels form */}
+      <Modal
+        title={'Add a label'}
+        open={isLabelFormOpen}
+        okText={'Create'}
+        onOk={() => {
+          dispatch(createLabel({ label }))
+          dispatch(createLabelsForTask({ id: task.id, label }))
+          setIsLabelFormOpen(false)
+        }}
+        onCancel={() => setIsLabelFormOpen(false)}
+      >
+        <div>
+            <input
+              onChange={(e) => setLabel(e.target.value)}
+              type="text"
+              placeholder="Label name"
+              className="border border-gray-400 px-5 py-2 rounded-xl outline-none w-96"
+            />
+          </div>
+      </Modal>
     </div>
   );
 };

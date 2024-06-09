@@ -1,66 +1,91 @@
 import { Dropdown } from "antd";
 import { CiSearch } from "react-icons/ci";
 import { TbArrowsSort } from "react-icons/tb";
+import { CiFilter } from "react-icons/ci";
 import { MdOutlineAssignment } from "react-icons/md";
-import { HiOutlineStatusOnline } from "react-icons/hi";
 import { HiOutlineViewBoards } from "react-icons/hi";
 import { IoIosList } from "react-icons/io";
-import { MdOutlineSevereCold } from "react-icons/md";
-import sortItems from "../constants/sortItems";
 import AssignedItems from "../constants/assignedItems";
-import statusItems from "../constants/statusItems";
-import severityItems from "../constants/severityItems";
 import TasksColumn from "../components/TasksColumn";
 import { useDispatch, useSelector } from "react-redux";
 import { makeUserLogIn } from "../store/Slices/usersSlice";
 import { useNavigate } from "react-router-dom";
-import { populateAssigneeOption } from "../store/Slices/operationsSlice";
+import {
+  populateAssigneeOption,
+  populateSearchText,
+} from "../store/Slices/operationsSlice";
+import SortItems from "../constants/sortItems";
+import FilterItems from "../constants/filterItems";
 
 const KanbanBoard = () => {
 
-  let tasks = useSelector((state: any) => state.tasks.tasks)
-  const userLoggedIn = useSelector((state: any) => state.users.userLoggedIn)
-  const assigneeName = useSelector((state: any) => state.operations.assigneeName)
+  let tasks = useSelector((state: any) => state.tasks.tasks);
+  const userLoggedIn = useSelector((state: any) => state.users.userLoggedIn);
+  const assigneeName = useSelector(
+    (state: any) => state.operations.assigneeName
+  );
+  const searchText: string = useSelector((state: any) => state.operations.searchText);
+  const sortByDate: boolean = useSelector((state: any) => state.operations.sortByDate);
+  const labelText: string = useSelector((state: any) => state.operations.labelText);
 
-  console.log(tasks)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  let draftTasks: Task[] = [];
+  let unsolvedTasks: Task[] = [];
+  let underReviewTasks: Task[] = [];
+  let solvedTasks: Task[] = [];
 
-  let draftTasks: Task[] = []
-  let unsolvedTasks: Task[] = []
-  let underReviewTasks: Task[] = []
-  let solvedTasks: Task[] = []
-
-  if(assigneeName) {
-    tasks = tasks.filter((task: Task) => task.assignee === assigneeName)
+  if(searchText) {
+    tasks = tasks.filter((task: Task) => task.name.toLowerCase().includes(searchText.toLowerCase()))
   }
 
-  console.log(tasks)
+  if (assigneeName !== "all") {
+    tasks = tasks.filter((task: Task) => task.assignee === assigneeName);
+  }
+
+  if(labelText) {
+    tasks = tasks.filter((task: Task) => task.labels?.includes(labelText))
+  }
 
   tasks.forEach((task: Task) => {
-    if(task.status === 'Draft')
-      draftTasks.push(task)
-    else if(task.status === 'Unsolved')
-      unsolvedTasks.push(task)
-    else if(task.status === 'Under Review')
-      underReviewTasks.push(task)
-    else if(task.status === 'Solved')
-      solvedTasks.push(task)
-  })
+    if (task.status === "Draft") draftTasks.push(task);
+    else if (task.status === "Unsolved") unsolvedTasks.push(task);
+    else if (task.status === "Under Review") underReviewTasks.push(task);
+    else if (task.status === "Solved") solvedTasks.push(task);
+  });
 
-  if(!userLoggedIn) {
-    window.location.href = '/'
-    return
+  if(sortByDate) {
+    draftTasks.sort((task1: Task, task2: Task) => task1.dateAndTime.getTime() - task2.dateAndTime.getTime());
+    unsolvedTasks.sort((task1: Task, task2: Task) => task1.dateAndTime.getTime() - task2.dateAndTime.getTime());
+    underReviewTasks.sort((task1: Task, task2: Task) => task1.dateAndTime.getTime() - task2.dateAndTime.getTime());
+    solvedTasks.sort((task1: Task, task2: Task) => task1.dateAndTime.getTime() - task2.dateAndTime.getTime());
+  }
+
+
+  const sendSearchTextToStore = (searchText: string) => {
+    dispatch(populateSearchText({ searchText }))
+  }
+
+  if (!userLoggedIn) {
+    window.location.href = "/";
+    return;
   }
 
   return (
     <div className="p-10">
       <div className=" flex justify-between mb-10">
         <h1 className="text-xl md:text-3xl font-semibold">Vulnerabilities</h1>
-        <button onClick={() => { dispatch(makeUserLogIn({ loggedIn: false, loggedInUsername: '' }))
-                                 dispatch(populateAssigneeOption({ assigneeName: '' }))
-                                 navigate('/')} } className="border border-red-400 bg-red-400 px-4 py-1 text-white rounded-lg">Logout</button>
+        <button
+          onClick={() => {
+            dispatch(makeUserLogIn({ loggedIn: false, loggedInUsername: "" }));
+            dispatch(populateAssigneeOption({ assigneeName: "all" }));
+            navigate("/");
+          }}
+          className="border border-red-400 bg-red-400 px-4 py-1 text-white rounded-lg"
+        >
+          Logout
+        </button>
       </div>
 
       {/* For all the options */}
@@ -70,6 +95,7 @@ const KanbanBoard = () => {
           <div className="flex items-center">
             <div className="relative">
               <input
+                onChange={(e) => sendSearchTextToStore(e.target.value)}
                 type="text"
                 className="pl-10 pr-4 py-1 border border-gray-300 rounded-xl outline-none"
                 placeholder="Search by issue name..."
@@ -82,7 +108,7 @@ const KanbanBoard = () => {
 
           {/* For all other options */}
           <div className="flex gap-x-5">
-            <Dropdown menu={{ items: sortItems }}>
+            <Dropdown menu={{ items: SortItems() }}>
               <div
                 className="flex items-center gap-x-2 px-4 py-1 border border-gray-300 rounded-xl outline-none cursor-pointer"
                 onClick={(e) => e.preventDefault()}
@@ -102,23 +128,13 @@ const KanbanBoard = () => {
               </div>
             </Dropdown>
 
-            <Dropdown menu={{ items: severityItems }}>
+            <Dropdown menu={{ items: FilterItems() }}>
               <div
                 className="flex items-center gap-x-2 px-4 py-1 border border-dashed border-gray-300 rounded-xl outline-none cursor-pointer"
                 onClick={(e) => e.preventDefault()}
               >
-                <MdOutlineSevereCold className="font-semibold" />
-                <p className="font-semibold">Severity</p>
-              </div>
-            </Dropdown>
-
-            <Dropdown menu={{ items: statusItems }}>
-              <div
-                className="flex items-center gap-x-2 px-4 py-1 border border-dashed border-gray-300 rounded-xl outline-none cursor-pointer"
-                onClick={(e) => e.preventDefault()}
-              >
-                <HiOutlineStatusOnline className="font-semibold" />
-                <p className="font-semibold">Status</p>
+                <CiFilter className="font-semibold" />
+                <p className="font-semibold">Filter</p>
               </div>
             </Dropdown>
           </div>
