@@ -16,10 +16,21 @@ import { useSelector } from "react-redux";
 const KanbanBoard = () => {
 
   const tasks = useSelector((state: any) => state.tasks.tasks)
-  const draftTasks = tasks.filter((task: Task) => task.status === 'Draft')
-  const unsolvedTasks = tasks.filter((task: Task) => task.status === 'Unsolved')
-  const underReviewTasks = tasks.filter((task: Task) => task.status === 'Under Review')
-  const solvedTasks = tasks.filter((task: Task) => task.status === 'Solved')
+  let draftTasks: Task[] = []
+  let unsolvedTasks: Task[] = []
+  let underReviewTasks: Task[] = []
+  let solvedTasks: Task[] = []
+
+  tasks.forEach((task: Task) => {
+    if(task.status === 'Draft')
+      draftTasks.push(task)
+    else if(task.status === 'Unsolved')
+      unsolvedTasks.push(task)
+    else if(task.status === 'Under Review')
+      underReviewTasks.push(task)
+    else
+    solvedTasks.push(task)
+  })
 
   return (
     <div className="p-10">

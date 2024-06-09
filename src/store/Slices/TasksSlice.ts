@@ -9,7 +9,7 @@ const initialState: InitialState = {
     {
       id: 1,
       status: 'Draft',
-      name: "taskjdnfjdjvdfjvbdfjvbvjsbvjbfjhdbjdfsvbdjhdjhbhjdfjhvbdvjhbdvhj jfhuhduvsdjdbjvd ufhsyufsu",
+      name: "Draft task",
       severity: "Medium",
       severityValue: 2.0,
       dateAndTime: new Date(),
@@ -43,10 +43,26 @@ const tasksSlice = createSlice({
         }
         tasks.push(updatedTask)
         state.tasks = tasks
+    },
+    deleteTask: (state, action) => {
+      const tasks: Task[] = state.tasks.filter((task: Task) => task.id !== action.payload.id)
+      console.log(tasks)
+      state.tasks = tasks
+    },
+    dragAndDropTask: (state, action) => {
+      const task: Task[] = state.tasks.filter((task: Task) => task.id === action.payload.id)
+      const tasks: Task[] = state.tasks.filter((task: Task) => task.id !== action.payload.id)
+      
+      const updatedTask = {
+        ...task[0],
+        status: action.payload.status
+      }
+
+      state.tasks = [...tasks, updatedTask]
     }
   },
 });
 
-export const { createTask } = tasksSlice.actions;
+export const { createTask, editTask, deleteTask, dragAndDropTask } = tasksSlice.actions;
 
 export default tasksSlice.reducer;

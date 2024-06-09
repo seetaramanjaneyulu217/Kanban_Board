@@ -3,10 +3,24 @@ import { LuPlus } from "react-icons/lu";
 import TaskCard from "./TaskCard";
 import { useState } from "react";
 import TaskForm from "./TaskForm";
+import { useDrop } from "react-dnd";
+import { useDispatch } from "react-redux";
+import { dragAndDropTask } from "../store/Slices/TasksSlice";
 
 const TasksColumn = ({ status, statusColor, tasks }: TasksColumn) => {
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const dispatch = useDispatch()
+
+  const [ _, drop] = useDrop(() => ({
+    accept: "TaskCard",
+    drop: (item: { id: string; status: string; }) => dropTheCard(item.id),
+  }));
+
+  const dropTheCard = (id: string) => {
+    dispatch(dragAndDropTask({ id: id, status: status }))
+  };
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   return (
     <div className="w-full">
@@ -23,25 +37,34 @@ const TasksColumn = ({ status, statusColor, tasks }: TasksColumn) => {
         </div>
 
         {/* For adding new task */}
-        <div className="flex items-center gap-x-2">
+        <div
+          className={`${
+            status === "Solved" ? "hidden" : "block"
+          } flex items-center gap-x-2`}
+        >
           <BiDotsHorizontalRounded className="cursor-pointer text-gray-500" />
-          <LuPlus onClick={() => setIsModalOpen(true)} className="cursor-pointer text-gray-500" />
+          <LuPlus
+            onClick={() => setIsModalOpen(true)}
+            className="cursor-pointer text-gray-500"
+          />
         </div>
       </div>
 
-
       {/* for displaying tasks */}
-      <div>
-        {
-          tasks.map((task: Task) => (
-            <TaskCard key={task.id} task={task} />
-          ))
-        }
+      <div className="h-[50vh]" ref={drop}>
+        {tasks.map((task: Task) => (
+          <TaskCard key={task.id} task={task} />
+        ))}
       </div>
 
-      {
-        (isModalOpen && status !== 'Solved') && <TaskForm isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} status={status} />
-      }
+      {isModalOpen && (
+        <TaskForm
+          formType="New"
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          status={status}
+        />
+      )}
     </div>
   );
 };

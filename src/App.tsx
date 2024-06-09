@@ -2,7 +2,6 @@ import { Route, Routes } from "react-router-dom";
 import Signup from "./pages/Signup";
 import KanbanBoard from "./pages/KanbanBoard";
 import { Toaster } from "react-hot-toast";
-import { useEffect } from "react";
 
 function App() {
   

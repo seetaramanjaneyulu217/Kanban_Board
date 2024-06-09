@@ -2,9 +2,11 @@ import { Modal, Select } from "antd";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { createTask } from "../store/Slices/TasksSlice";
+import { createTask, editTask } from "../store/Slices/TasksSlice";
 
 interface TaskFormProps {
+  task?: Task;
+  formType: string;
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   status: string;
@@ -16,12 +18,31 @@ interface TaskDetails {
   priorityValue: number;
 }
 
-const TaskForm = ({ isModalOpen, setIsModalOpen, status }: TaskFormProps) => {
+interface TaskEditDetails {
+  taskName?: string;
+  taskPriority?: string;
+  priorityValue?: number;
+}
+
+const TaskForm = ({
+  task,
+  formType,
+  isModalOpen,
+  setIsModalOpen,
+  status,
+}: TaskFormProps) => {
   const [taskDetails, setTaskDetails] = useState<TaskDetails>({
     taskName: "",
     taskPriority: "",
     priorityValue: 0.9,
   });
+
+  const [editTaskDetails, setEditTaskDetails] = useState<TaskEditDetails>({
+    taskName: task?.name,
+    taskPriority: task?.severity,
+    priorityValue: task?.severityValue,
+  });
+
   const dispatch = useDispatch();
 
   const handleFormSubmission = (e: React.FormEvent) => {
@@ -41,35 +62,75 @@ const TaskForm = ({ isModalOpen, setIsModalOpen, status }: TaskFormProps) => {
       return;
     }
 
-    dispatch(createTask({
-      status: status,
-      name: taskDetails.taskName,
-      severity: taskDetails.taskPriority,
-      severityValue: taskDetails.priorityValue,
-      dateAndTime: new Date()
-    }));
+    dispatch(
+      createTask({
+        status: status,
+        name: taskDetails.taskName,
+        severity: taskDetails.taskPriority,
+        severityValue: taskDetails.priorityValue,
+        dateAndTime: new Date(),
+      })
+    );
 
     setIsModalOpen(false);
   };
 
+  const handleEditFormSubmission = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      editTaskDetails.taskName === "" ||
+      editTaskDetails.taskPriority === "" ||
+      editTaskDetails.priorityValue === 0.9
+    ) {
+      toast.error("Fill all the details");
+      return;
+    }
+
+    if (editTaskDetails.priorityValue! > 10 || editTaskDetails.priorityValue! < 1) {
+      toast.error("Priority value should be < 10 and >= 1");
+      return;
+    }
+
+    dispatch(
+      editTask({
+        id: task?.id,
+        status: status,
+        name: editTaskDetails.taskName,
+        severity: editTaskDetails.taskPriority,
+        severityValue: editTaskDetails.priorityValue,
+        dateAndTime: new Date(),
+      })
+    );
+
+    setIsModalOpen(false);
+  };
   return (
     <div>
       <Modal
-        title="Create task"
+        title={`${formType === 'New' ? 'Create' : 'Edit' } task`}
         open={isModalOpen}
-        okText={"Submit"}
-        onOk={handleFormSubmission}
+        okText={formType === 'New' ? "Create" : 'Edit'}
+        onOk={
+          formType === "New" ? handleFormSubmission : handleEditFormSubmission
+        }
         onCancel={() => setIsModalOpen(false)}
       >
         <form className="mt-10 flex flex-col gap-y-5">
           <h3 className="mt-5 text-lg font-semibold">
-            Task will be created in {status} category
+            Task will be {formType === 'New' ? "created" : "edited"} in {status} category
           </h3>
           <div>
             <input
-              onChange={(e) =>
-                setTaskDetails({ ...taskDetails, taskName: e.target.value })
-              }
+              defaultValue={formType === "Edit" ? task?.name : ""}
+              onChange={(e) => {
+                formType === "New"
+                  ? setTaskDetails({ ...taskDetails, taskName: e.target.value })
+                  : setEditTaskDetails({
+                      ...editTaskDetails,
+                      taskName: e.target.value,
+                    });
+              }}
               type="text"
               placeholder="Task name"
               className="border border-gray-400 px-5 py-2 rounded-xl outline-none w-96"
@@ -78,9 +139,15 @@ const TaskForm = ({ isModalOpen, setIsModalOpen, status }: TaskFormProps) => {
 
           <div>
             <Select
-              onChange={(value) =>
-                setTaskDetails({ ...taskDetails, taskPriority: value })
-              }
+              defaultValue={formType === "Edit" ? task?.severity : ""}
+              onChange={(value) => {
+                formType === "New"
+                  ? setTaskDetails({ ...taskDetails, taskPriority: value })
+                  : setEditTaskDetails({
+                      ...editTaskDetails,
+                      taskPriority: value,
+                    });
+              }}
               placeholder="Select priority"
               className="w-96"
               options={[
@@ -94,12 +161,18 @@ const TaskForm = ({ isModalOpen, setIsModalOpen, status }: TaskFormProps) => {
 
           <div>
             <input
-              onChange={(e) =>
-                setTaskDetails({
-                  ...taskDetails,
-                  priorityValue: parseFloat(e.target.value),
-                })
-              }
+              defaultValue={formType === "Edit" ? task?.severityValue : ""}
+              onChange={(e) => {
+                formType === "New"
+                  ? setTaskDetails({
+                      ...taskDetails,
+                      priorityValue: parseFloat(e.target.value),
+                    })
+                  : setEditTaskDetails({
+                      ...editTaskDetails,
+                      priorityValue: parseFloat(e.target.value),
+                    });
+              }}
               type="number"
               min={1}
               max={10}
