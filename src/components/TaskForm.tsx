@@ -1,7 +1,7 @@
 import { Modal, Select } from "antd";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createTask, editTask } from "../store/Slices/TasksSlice";
 
 interface TaskFormProps {
@@ -16,12 +16,14 @@ interface TaskDetails {
   taskName: string;
   taskPriority: string;
   priorityValue: number;
+  assignee: string;
 }
 
 interface TaskEditDetails {
   taskName?: string;
   taskPriority?: string;
   priorityValue?: number;
+  assignee?: string;
 }
 
 const TaskForm = ({
@@ -31,16 +33,25 @@ const TaskForm = ({
   setIsModalOpen,
   status,
 }: TaskFormProps) => {
+
+
+  const users = useSelector((state: any) => state.users.users)
+  const usernames = users.map((user: User) => {
+    return { value: user.name, label: <span>{user.name}</span> }
+  })
+
   const [taskDetails, setTaskDetails] = useState<TaskDetails>({
     taskName: "",
     taskPriority: "",
     priorityValue: 0.9,
+    assignee: ''
   });
 
   const [editTaskDetails, setEditTaskDetails] = useState<TaskEditDetails>({
     taskName: task?.name,
     taskPriority: task?.severity,
     priorityValue: task?.severityValue,
+    assignee: task?.assignee
   });
 
   const dispatch = useDispatch();
@@ -68,6 +79,7 @@ const TaskForm = ({
         name: taskDetails.taskName,
         severity: taskDetails.taskPriority,
         severityValue: taskDetails.priorityValue,
+        assignee: taskDetails.assignee,
         dateAndTime: new Date(),
       })
     );
@@ -99,6 +111,7 @@ const TaskForm = ({
         name: editTaskDetails.taskName,
         severity: editTaskDetails.taskPriority,
         severityValue: editTaskDetails.priorityValue,
+        assignee: editTaskDetails.assignee,
         dateAndTime: new Date(),
       })
     );
@@ -148,7 +161,7 @@ const TaskForm = ({
                       taskPriority: value,
                     });
               }}
-              placeholder="Select priority"
+              placeholder="Select Priority"
               className="w-96"
               options={[
                 { value: "Low", label: <span>Low</span> },
@@ -156,6 +169,23 @@ const TaskForm = ({
                 { value: "High", label: <span>High</span> },
                 { value: "Critical", label: <span>Critical</span> },
               ]}
+            />
+          </div>
+
+          <div>
+            <Select
+              defaultValue={formType === "Edit" ? task?.assignee : ""}
+              onChange={(value) => {
+                formType === "New"
+                  ? setTaskDetails({ ...taskDetails, assignee: value })
+                  : setEditTaskDetails({
+                      ...editTaskDetails,
+                      assignee: value,
+                    });
+              }}
+              placeholder="Select assignee"
+              className="w-96"
+              options={usernames}
             />
           </div>
 

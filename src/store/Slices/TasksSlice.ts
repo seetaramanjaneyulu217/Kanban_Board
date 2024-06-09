@@ -12,11 +12,12 @@ const initialState: InitialState = {
       name: "Draft task",
       severity: "Medium",
       severityValue: 2.0,
+      assignee: 'seetaram',
       dateAndTime: new Date(),
     },
-    { id: 2, status: 'Unsolved', name: "task", severity: "Low", severityValue: 2.0,  dateAndTime: new Date() },
-    { id: 3, status: 'Under Review', name: "task", severity: "High", severityValue: 2.0, dateAndTime: new Date() },
-    { id: 4, status: 'Solved', name: "task", severity: "Critical", severityValue: 2.0, dateAndTime: new Date() },
+    { id: 2, status: 'Unsolved', name: "task", severity: "Low", severityValue: 2.0, assignee: 'seetaram',  dateAndTime: new Date() },
+    { id: 3, status: 'Under Review', name: "task", severity: "High", severityValue: 2.0, assignee: 'seetaram', dateAndTime: new Date() },
+    { id: 4, status: 'Solved', name: "task", severity: "Critical", severityValue: 2.0, assignee: 'seetaram', dateAndTime: new Date() },
   ],
 };
 
@@ -39,6 +40,7 @@ const tasksSlice = createSlice({
             name: action.payload.name,
             severity: action.payload.severity,
             severityValue: action.payload.severityValue,
+            assignee: action.payload.assignee,
             dateAndTime: new Date()
         }
         tasks.push(updatedTask)

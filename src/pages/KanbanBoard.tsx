@@ -7,19 +7,36 @@ import { HiOutlineViewBoards } from "react-icons/hi";
 import { IoIosList } from "react-icons/io";
 import { MdOutlineSevereCold } from "react-icons/md";
 import sortItems from "../constants/sortItems";
-import assignedItems from "../constants/assignedItems";
+import AssignedItems from "../constants/assignedItems";
 import statusItems from "../constants/statusItems";
 import severityItems from "../constants/severityItems";
 import TasksColumn from "../components/TasksColumn";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { makeUserLogIn } from "../store/Slices/usersSlice";
+import { useNavigate } from "react-router-dom";
+import { populateAssigneeOption } from "../store/Slices/operationsSlice";
 
 const KanbanBoard = () => {
 
-  const tasks = useSelector((state: any) => state.tasks.tasks)
+  let tasks = useSelector((state: any) => state.tasks.tasks)
+  const userLoggedIn = useSelector((state: any) => state.users.userLoggedIn)
+  const assigneeName = useSelector((state: any) => state.operations.assigneeName)
+
+  console.log(tasks)
+
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
   let draftTasks: Task[] = []
   let unsolvedTasks: Task[] = []
   let underReviewTasks: Task[] = []
   let solvedTasks: Task[] = []
+
+  if(assigneeName) {
+    tasks = tasks.filter((task: Task) => task.assignee === assigneeName)
+  }
+
+  console.log(tasks)
 
   tasks.forEach((task: Task) => {
     if(task.status === 'Draft')
@@ -28,14 +45,22 @@ const KanbanBoard = () => {
       unsolvedTasks.push(task)
     else if(task.status === 'Under Review')
       underReviewTasks.push(task)
-    else
-    solvedTasks.push(task)
+    else if(task.status === 'Solved')
+      solvedTasks.push(task)
   })
+
+  if(!userLoggedIn) {
+    window.location.href = '/'
+    return
+  }
 
   return (
     <div className="p-10">
-      <div className="mb-10">
+      <div className=" flex justify-between mb-10">
         <h1 className="text-xl md:text-3xl font-semibold">Vulnerabilities</h1>
+        <button onClick={() => { dispatch(makeUserLogIn({ loggedIn: false, loggedInUsername: '' }))
+                                 dispatch(populateAssigneeOption({ assigneeName: '' }))
+                                 navigate('/')} } className="border border-red-400 bg-red-400 px-4 py-1 text-white rounded-lg">Logout</button>
       </div>
 
       {/* For all the options */}
@@ -67,7 +92,7 @@ const KanbanBoard = () => {
               </div>
             </Dropdown>
 
-            <Dropdown menu={{ items: assignedItems }}>
+            <Dropdown menu={{ items: AssignedItems() }}>
               <div
                 className="flex items-center gap-x-2 px-4 py-1 border border-dashed border-gray-300 rounded-xl outline-none cursor-pointer"
                 onClick={(e) => e.preventDefault()}

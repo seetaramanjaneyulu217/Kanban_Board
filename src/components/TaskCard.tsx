@@ -54,7 +54,7 @@ const TaskCard = ({ task }: TaskCardProps) => {
           <div className="text-sm">#{task.id}</div>
           <div className="w-1 h-1 rounded-full bg-gray-400"></div>
           <div className="text-gray-400 text-xs">
-            {task.dateAndTime.toLocaleString("en-US", {
+            {task.dateAndTime?.toLocaleString("en-US", {
               month: "short",
               day: "numeric",
               hour: "numeric",

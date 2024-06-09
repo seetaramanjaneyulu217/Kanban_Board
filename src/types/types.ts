@@ -10,6 +10,13 @@ interface Task {
     name: string;
     severity: string;
     severityValue: number;
+    assignee: string;
     labels?: string[];
     dateAndTime: Date
+}
+
+interface User {
+    name: string;
+    email: string;
+    password: string;
 }
